@@ -1,5 +1,5 @@
-// recursively animates the drawing of a fractal
-function fractal(ctx, parameters, options, callback){
+// recursively animates the drawing of a fractal tree
+function tree(ctx, parameters, options, callback){
 
   // if we are at the end of the iteration, finish
   if(parameters.size === 0){
@@ -27,10 +27,10 @@ function fractal(ctx, parameters, options, callback){
     // set the timeout for the next iterations
     setTimeout(function(){
       // only pass the callback to one child
-      fractal(ctx, modify(parameters, {
+      tree(ctx, modify(parameters, {
         direction: parameters.direction + options.spread,
       }), options, callback);
-      fractal(ctx, modify(parameters, {
+      tree(ctx, modify(parameters, {
         direction: parameters.direction - options.spread
       }), options);
     }, options.branchDelay);

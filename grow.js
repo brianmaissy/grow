@@ -1,11 +1,11 @@
 if (Meteor.isClient) {
   window.onload = function(){
     var canvas = document.getElementById('canvas');
-    drawFractals(canvas);
+    drawTrees(canvas);
   }
 
-  // repeatedly draws an animated growing fractal
-  function drawFractals(canvas){
+  // repeatedly draws animated growing fractal trees
+  function drawTrees(canvas){
     var ctx = canvas.getContext('2d');
 
     // set up the common parameters and options
@@ -37,20 +37,20 @@ if (Meteor.isClient) {
     // continuously run the animation
     async.whilst(always, function(callback){
       async.series([
-        // draw the three fractals
-        async.apply(fractal, ctx, modify(parameters, {
+        // draw the three trees
+        async.apply(tree, ctx, modify(parameters, {
           x: 100.5,
           size: 60
         }), modify(options, {
           color: 'red'
         })),
-        async.apply(fractal, ctx, modify(parameters, {
+        async.apply(tree, ctx, modify(parameters, {
           x: 260.5,
           size: 40
         }), modify(options, {
           color: 'green'
         })),
-        async.apply(fractal, ctx, modify(parameters, {
+        async.apply(tree, ctx, modify(parameters, {
           x: 200.5,
           size: 100
         }), modify(options, {
