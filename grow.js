@@ -1,7 +1,48 @@
 if (Meteor.isClient) {
   window.onload = function(){
     var canvas = document.getElementById('canvas');
-    drawTrees(canvas);
+    //drawTrees(canvas);
+    drawVines(canvas);
+  }
+
+  // repeatedly draws animated growing vines
+  function drawVines(canvas){
+    var ctx = canvas.getContext('2d');
+
+    // set up the common parameters and options
+    var parameters = {
+      // the current growth location of the vine
+      x: 199.5,
+      y: 399.5,
+      // the length of the next branch of the vine
+      size: 50,
+      // the direction in which the vine is growing, in radians
+      direction: Math.PI/2,
+      // parameters for the curve of the vine branch
+      curve: {
+        // the starting parameter of the vine branch curve
+        parameter: 0,
+      }
+    };
+    var options = {
+      curve: {
+        // a parametric function describing the curve of the vine branches
+        fn: function(t){ return [1-Math.cos(t), Math.sin(t)]; },
+        // the step by which to evaluate the branch curve
+        step: Math.PI/20,
+        // the parameter at which to stop the branch curve
+        bound: Math.PI/2,
+        // the speed at which curve segments should grow, in pixels per second
+        segmentGrowthSpeed: 50,
+      }
+    };
+    async.whilst(always, function(callback){
+      async.series([
+        async.apply(vine, ctx, parameters, options),
+        delay(500),
+        async.apply(clear, canvas),
+      ], callback);
+    });
   }
 
   // repeatedly draws animated growing fractal trees
