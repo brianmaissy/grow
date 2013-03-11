@@ -29,7 +29,7 @@ if (Meteor.isClient) {
         // a parametric function describing the curve of the vine branches
         fn: function(t){ return [.5-.5*Math.cos(t), Math.sin(t)]; },
         // the step by which to evaluate the branch curve
-        step: Math.PI/10,
+        step: Math.PI/15,
         // the parameter at which to stop the branch curve
         bound: Math.PI/2,
         // the speed at which curve segments should grow, in pixels per second
