@@ -21,6 +21,16 @@ function clear(canvas, callback){
   if(callback) callback();
 }
 
+// ========== MATH HELPER FUNCTIONS ==========
+
+function rotate(vector, theta){
+  var x = vector[0], y = vector[1];
+  return [
+    x*Math.cos(theta) - y*Math.sin(theta),
+    x*Math.sin(theta) + y*Math.cos(theta)
+  ];
+}
+
 // ========== OBJECT HELPER FUNCTIONS ==========
 
 // utility function for modifying an options object

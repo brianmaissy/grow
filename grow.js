@@ -17,7 +17,7 @@ if (Meteor.isClient) {
       // the length of the next branch of the vine
       size: 75,
       // the direction in which the vine is growing, in radians
-      direction: Math.PI/2,
+      direction: 5*Math.PI/8,
       // parameters for the curve of the vine branch
       curve: {
         // the starting parameter of the vine branch curve
@@ -27,11 +27,11 @@ if (Meteor.isClient) {
     var options = {
       curve: {
         // a parametric function describing the curve of the vine branches
-        fn: function(t){ return [.5-.5*Math.cos(t), Math.sin(t)]; },
+        fn: function(t){ return [.65-.65*Math.cos(t), Math.sin(t)]; },
         // the step by which to evaluate the branch curve
         step: Math.PI/15,
         // the parameter at which to stop the branch curve
-        bound: Math.PI/2,
+        bound: 5*Math.PI/8,
         // the speed at which curve segments should grow, in pixels per second
         segmentGrowthSpeed: 50,
       }

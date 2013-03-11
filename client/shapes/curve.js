@@ -7,9 +7,9 @@ function curve(ctx, parameters, options, callback){
     return;
   }
 
-  var start = options.fn(parameters.parameter);
+  var start = rotate(options.fn(parameters.parameter), options.direction-Math.PI/2);
   parameters.parameter += options.step;
-  var end = options.fn(parameters.parameter);
+  var end = rotate(options.fn(parameters.parameter), options.direction-Math.PI/2);
 
   var startX = options.startX + start[0]*options.size;
   var startY = options.startY - start[1]*options.size;
