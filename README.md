@@ -35,3 +35,9 @@ Grow is an early-stage work in progress.
 * As of right now, grow has inline documentation of its process, but no formal 
   documentation of its API. The API is documented by example in the controller
   grow.js.
+
+### TODO
+
+* Document API functions
+* Rethink/organize options and parameters system and format
+* Set defaults for options and parameters objects and fields
