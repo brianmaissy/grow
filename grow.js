@@ -37,8 +37,10 @@ if (Meteor.isClient) {
         // the step by which to evaluate the branch curve
         step: Math.PI/15,
         events: [
+          {location: 1*Math.PI/8, action: 'branch'},
           {location: 3*Math.PI/8, action: 'branch'}
         ],
+
         // the parameter at which to stop the branch curve
         bound: 5*Math.PI/8,
         // the speed at which curve segments should grow, in pixels per second
