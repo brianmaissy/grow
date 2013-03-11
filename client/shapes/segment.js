@@ -12,7 +12,7 @@ function segment(ctx, startX, startY, endX, endY, speed, callback){
   
   // otherwise, prepare the line segment
   ctx.beginPath();
-  ctx.lineCap = 'square';
+  ctx.lineCap = 'round';
   ctx.moveTo(startX, startY);
 
   // calculate the position of the first step
