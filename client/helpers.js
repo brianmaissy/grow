@@ -34,19 +34,28 @@ function rotate(vector, theta){
 // ========== OBJECT HELPER FUNCTIONS ==========
 
 // utility function for modifying an options object
+// deep copies the attributes of both original and changes into a new object
 function modify(original, changes){
   var result = {};
-  for(attr in original){
-    if(original.hasOwnProperty(attr)){
-      result[attr] = original[attr];
-    }
-  }
-  for(attr in changes){
-    if(changes.hasOwnProperty(attr)){
-      result[attr] = changes[attr];
-    }
-  }
+  deepCopyInto(original, result);
+  deepCopyInto(changes, result);
   return result;
+}
+
+// deep copies the attributes of source into dest and returns a reference to dest
+function deepCopyInto(source, dest){
+  for(attr in source){
+    if(source.hasOwnProperty(attr)){
+      if(source[attr].constructor == Array){
+        dest[attr] = deepCopyInto(source[attr], []);
+      }else if(typeof source[attr] == 'object'){
+        dest[attr] = deepCopyInto(source[attr], {});
+      }else{
+        dest[attr] = source[attr];
+      }
+    }
+  }
+  return dest;
 }
 
 // ========== CONTROL FLOW HELPER FUNCTIONS ==========
