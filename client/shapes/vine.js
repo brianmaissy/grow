@@ -66,16 +66,20 @@ function vine(ctx, parameters, options, callback){
 // returns an array of a random amount of randomly located branches
 // usually 2, sometimes 1 or 3
 // distributed equally between 0 and PI/2
+// drops branches located within PI/8 of each other
 function randomBranches(){
   var branchEvents = [];
   var random = Math.random();
-  branchEvents.push(randomBranch());
-  if(random > .7) branchEvents.push(randomBranch());
-  if(random > .9) branchEvents.push(randomBranch());
+  randomBranch();
+  if(random > .6) randomBranch();
+  if(random > .8) randomBranch();
   return branchEvents;
 
   function randomBranch(){
     var location = .25*Math.PI + .5*Math.PI*(Math.random()-.5);
-    return {action: 'branch', location: location};
+    for(var i=0; i<branchEvents.length; i++){
+      if(Math.abs(branchEvents[i].location - location) < Math.PI/8) return;
+    }
+    branchEvents.push({action: 'branch', location: location});
   }
 }

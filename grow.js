@@ -39,7 +39,7 @@ if (Meteor.isClient) {
         // events to trigger during the curve progression
         events: randomBranches(),
         // the parameter at which to stop the branch curve
-        bound: randomize(3*Math.PI/4, Math.PI/4),
+        bound: randomize(2*Math.PI/3, Math.PI/6),
         // the speed at which curve segments should grow, in pixels per second
         segmentGrowthSpeed: 50,
       },
