@@ -30,7 +30,7 @@ if (Meteor.isClient) {
     };
     var options = {
       shrink: function(n){ return n < 30 ? 0 : randomize(n - 20, 10); },
-      branchAngle: Math.PI/8, 
+      branchAngle: randomize(Math.PI/6), 
       curve: {
         // a parametric function describing the curve of the vine branches
         fn: function(t){ return [.65-.65*Math.cos(t), Math.sin(t)]; },
@@ -39,7 +39,7 @@ if (Meteor.isClient) {
         // events to trigger during the curve progression
         events: randomBranches(),
         // the parameter at which to stop the branch curve
-        bound: 5*Math.PI/8,
+        bound: randomize(3*Math.PI/4, Math.PI/4),
         // the speed at which curve segments should grow, in pixels per second
         segmentGrowthSpeed: 50,
       },
