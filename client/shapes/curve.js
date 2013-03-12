@@ -23,7 +23,7 @@ function curve(ctx, parameters, options, callback){
   var startY = options.startY - start[1]*options.size;
   var endX = parameters.x = options.startX + end[0]*options.size;
   var endY = parameters.y = options.startY - end[1]*options.size;
-  parameters.direction = Math.atan((startY-endY)/(endX-startX));
+  parameters.direction = direction(startX, startY, endX, endY);
 
   // gradually draw the line segment
   segment(ctx, startX, startY, endX, endY, options.segmentGrowthSpeed, function(){
