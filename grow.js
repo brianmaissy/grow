@@ -20,8 +20,8 @@ if (Meteor.isClient) {
       size: 80,
       // whether or not to mirror the x-coordinate of the curve
       mirror: false,
-      // the number of times that this vine will sprout a branch
-      branches: 2,
+      // the maximum number of generations of descendant branches
+      branches: 5,
       // parameters for the curve of the vine branch
       curve: {
         // the starting parameter of the vine branch curve
@@ -29,18 +29,15 @@ if (Meteor.isClient) {
       },
     };
     var options = {
-      shrink: function(n){ return n < 40 ? 0 : n - 20; },
+      shrink: function(n){ return n < 30 ? 0 : randomize(n - 20, 10); },
       branchAngle: Math.PI/8, 
       curve: {
         // a parametric function describing the curve of the vine branches
         fn: function(t){ return [.65-.65*Math.cos(t), Math.sin(t)]; },
         // the step by which to evaluate the branch curve
         step: Math.PI/15,
-        events: [
-          {location: 1*Math.PI/8, action: 'branch'},
-          {location: 3*Math.PI/8, action: 'branch'}
-        ],
-
+        // events to trigger during the curve progression
+        events: randomBranches(),
         // the parameter at which to stop the branch curve
         bound: 5*Math.PI/8,
         // the speed at which curve segments should grow, in pixels per second
@@ -49,7 +46,9 @@ if (Meteor.isClient) {
     };
     async.whilst(always, function(callback){
       async.series([
-        async.apply(vine, ctx, parameters, options),
+        async.apply(vine, ctx, parameters, modify(options, {
+          curve: modify(options.curve, { events: randomBranches() })
+        })),
         delay(500),
         async.apply(clear, canvas),
       ], callback);
