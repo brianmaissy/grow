@@ -97,24 +97,33 @@ shape functions simple and standardized, and to improve readability.
 Options objects are modified by grow functions before calling themselves 
 recursively, and new or modified options objects are passed to other grow 
 functions and shape functions. All functions should pass clones of options 
-objects as arguments. 
+objects as arguments.
 
-Options objects can be nested, instead of increasing the complexity of option 
-names. For example, the options object passed to a vine might have a size
-option. Instead of containing an option such as flowerSize to specify the size
-of flowers growing from the vine, the main options object has a nested options 
-object under the name flower, which in turn contains all the options relevant to
-drawing the flowers, which will be extracted and passed to grow.flower().
+In order to allow randomized, or otherwise variable, values for options, the
+value for any option can be a function instead of an immediate value. At the
+beginning of each grow or shape function, the options object will be evaluated,
+which involves running each such function and replacing it with its return value
+in the options object. The new, evaluated version of the options object will be
+used for the duration of the function, but the original version will be passed
+on to recursive calls, enabling the next generation to have different values.
+
+In order to specify options for child drawing, options objects can be nested. 
+For example, the options object passed to a vine can have a flower option, which
+itself is an options object. When the vine wants to draw a flower, it will
+extract the flower options object as-is and pass it as the options object
+argument to the flower function. This improves modularity and readability of 
+options objects.
 
 <a name="events" />
-## Events objects and handlers
+## Event arrays and handlers
 
-The events object is a way to trigger simplified events during the drawing of a
-shape. An events object is a mapping from parameter values to handler functions. 
-The events object is passed to the [shape function](#shape_functions), and the 
-first time the parameter exceeds each specified value, the associated handler 
-function is called, passing as the only argument a clone of the shape function's
-current [context object](#context_objects).
+The events array is a way to trigger simplified events during the drawing of a
+shape. An events array is a list of objects, each one specifying a parameter
+value and an event handler. The events array is passed to the 
+[shape function](#shape_functions), and the first time the parameter exceeds 
+each specified parameter value, the associated handler function is called, 
+passing as the only argument a clone of the shape function's current 
+[context object](#context_objects).
 
 <a name="callback_functions" />
 ## Callback functions
