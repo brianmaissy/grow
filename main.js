@@ -1,7 +1,8 @@
 window.onload = function(){
-  var canvas = document.getElementById('canvas');
-  //drawTrees(canvas);
-  drawVines(canvas);
+  var canvas = initCanvas(document.getElementById('canvas'));
+
+  drawTrees(canvas);
+  //drawVines(canvas);
 }
 
 // repeatedly draws animated growing vines
@@ -32,7 +33,7 @@ function drawVines(canvas){
     branchAngle: randomize(Math.PI/6), 
     curve: {
       // a parametric function describing the curve of the vine branches
-      fn: function(t){ return [.65-.65*Math.cos(t), Math.sin(t)]; },
+      fn: curves.vineBranch,
       // the step by which to evaluate the branch curve
       step: Math.PI/15,
       // events to trigger during the curve progression
@@ -56,62 +57,46 @@ function drawVines(canvas){
 
 // repeatedly draws animated growing fractal trees
 function drawTrees(canvas){
-  var ctx = canvas.getContext('2d');
-
-  // set up the common parameters and options
-  var parameters = {
-    // the current growth location of the tree
-    x: 0,
+  // set up generic parameters
+  var params = {
+    x: 199.5,
     y: 399.5,
-    // the length of the next branch of the tree
-    size: 0,
-    // the direction in which the tree is growing, in radians
+    size: 50,
     direction: Math.PI/2,
-    // the current tint of the tree
-    tint: 0
-  };
-  var options = {
-    // the base color of the tree, either 'red', 'green', or 'blue'
-    color: 'red',
-    // the interval at which to increase the tint at each branch
-    tintInterval: 32, 
-    // the time interval to delay at each branch
-    branchDelay: 0,
-    // the speed at which line segments should grow, in pixels per second
-    segmentGrowthSpeed: 100,
-    // the angle, in radians, at which each branch should deflect to the side
-    spread: Math.PI/3,
-    // the function determining the length of a branch given the length of its parent branch
-    shrink: function(n){ return (n<2) ? 0 : .85*Math.pow(n, .92)-1; }
+    speed: 100,
+    color: '#ff0000',
+    branch: {
+      delay: 100,
+      spread: Math.PI/3,
+      shrink: function(n){ return (n<2) ? 0 : .85*Math.pow(n, .92)-1; },
+      tint: 32,
+    },
   };
   // continuously run the animation
   async.whilst(always, function(callback){
     async.series([
-      // draw the three trees
-      async.apply(tree, ctx, modify(parameters, {
+      // draw three trees, each with slightly different parameters
+      async.apply(tree, canvas, modify(params, {
         x: 100.5,
-        size: 60
-      }), modify(options, {
-        color: 'red'
+        size: 60,
+        color: '#ff0000',
       })),
-      async.apply(tree, ctx, modify(parameters, {
+      async.apply(tree, canvas, modify(params, {
         x: 260.5,
-        size: 40
-      }), modify(options, {
-        color: 'green'
+        size: 40,
+        color: '#00ff00',
       })),
-      async.apply(tree, ctx, modify(parameters, {
+      async.apply(tree, canvas, modify(params, {
         x: 200.5,
-        size: 100
-      }), modify(options, {
-        color: 'blue'
+        size: 100,
+        color: '#0000ff',
       })),
       // wait a while
       delay(2000),
       // clear the screen
       async.apply(clear, canvas),
       // wait a little bit before running it again
-      delay(options.branchDelay)
+      delay(params.branch.delay)
     ], callback);
   });
 }

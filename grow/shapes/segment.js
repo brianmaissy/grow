@@ -1,29 +1,51 @@
-// recursively animates the drawing of a line segment
-function segment(ctx, startX, startY, endX, endY, speed, callback){
+/* 
 
-  // calculate the distance to grow
-  var distance = Math.sqrt(Math.pow(endX-startX, 2)+Math.pow(endY-startY, 2));
+Draws a line segment asynchronously.
+
+Params:
+    x (starting x-coordinate)
+    y (starting y-coordinate)
+    direction (direction to draw in radians)
+    size (line segment length in pixels)
+    speed (the rate at which to draw, in pixels per second)
+    color (the color of the segment, in hex)
+
+Callback:
+    Called when the line is fully drawn. Passes the final params object.
+
+*/
+
+function segment(canvas, originalParams, callback){
+  var params = evaluateThunks(clone(originalParams))
 
   // if we're already there, finish
-  if(distance<1){
-    if(callback) callback();
+  if(params.size < 1){
+    // return the final params so we know where we left off
+    if(callback) callback(params);
     return;
   }
   
-  // otherwise, prepare the line segment
-  ctx.beginPath();
-  ctx.lineCap = 'round';
-  ctx.moveTo(startX, startY);
+  // prepare the line segment
+  canvas.strokeStyle = params.color;
+  canvas.beginPath();
+  canvas.lineCap = 'round';
+  canvas.moveTo(params.x, params.y);
 
-  // calculate the position of the first step
-  var x = startX + (endX-startX)/distance;
-  var y = startY + (endY-startY)/distance;
+  // calculate the position of the next step
+  var destination = rotate([1, 0], params.direction)
+  var destinationX = params.x + destination[0];
+  var destinationY = params.y - destination[1];
 
   // draw the line segment
-  ctx.lineTo(x, y);
-  ctx.stroke();
+  canvas.lineTo(destinationX, destinationY);
+  canvas.stroke();
+
   setTimeout(function(){
     // draw the remainder of the segment
-    segment(ctx, x, y, endX, endY, speed, callback); 
-  }, 1000/speed);
+    segment(canvas, modify(originalParams, {
+      size: params.size-1,
+      x: destinationX,
+      y: destinationY,
+    }), function(endingParams){ callback(endingParams); }); 
+  }, 1000/params.speed);
 }
