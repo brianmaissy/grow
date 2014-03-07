@@ -153,9 +153,7 @@ Grow is an early-stage work in progress. It's currently versioned at 0.x, which
 is preliminary, unstable development. The initial stable release will be 
 versioned 1.0.
 
-* It is currently implemented as a meteor.js project, but just for development, 
-  in order to use the automatic refresh and code pushing aspects of meteor. 
-* The controller code in grow.js is only an example of how grow is used, and 
+* The controller code in main.js is only an example of how grow is used, and 
   will not be in the initial release. 
 * The functions in helpers.js may not belong in the initial release of grow.
 * As of right now, grow has inline documentation of its process, but no formal 
@@ -176,5 +174,4 @@ versioned 1.0.
   Modify might need to be updated accordingly. Randomize will return a function.
 * Document grow functions, shape functions, and tools
 * Tests
-* Implement new organization, not as a meteor project.
 
