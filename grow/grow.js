@@ -1,3 +1,4 @@
+// given a canvas element, returns its 2d context augmented with the width and height of the canvas element itself
 function initCanvas(canvasElement){
   var canvas = canvasElement.getContext('2d');
   canvas.width = canvasElement.width;
@@ -129,7 +130,7 @@ function evaluateThunks(original){
   return original;
 }
 
-// ========== CONTROL FLOW HELPER FUNCTIONS ==========
+// ========== ASYNCHRONOUS CONTROL FLOW HELPER FUNCTIONS ==========
 
 // creates a function which takes a callback and calls it after
 // delaying for the specified amount of time
