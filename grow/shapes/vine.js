@@ -1,85 +1,72 @@
-// recursively animates the drawing of a vine
-function vine(ctx, parameters, options, callback){
+/* 
 
-  // all vines are green
-  ctx.strokeStyle = '#009900';
+Draws a growing vine asynchronously.
 
-  // if the size has run out, stop branching
-  if(parameters.size === 0) parameters.branches = 0;
+Params:
+    x (starting x-coordinate)
+    y (starting y-coordinate)
+    direction (direction for the first curve, in radians)
+    size (size of the first component curve)
+    speed (the rate at which to draw component line segments, in pixels per second)
+    color (the color of the first curve, in hex)
+    curve:
+        curveFunction (the function to evaluate curve locations for each parameter value)
+        parameterStart (the initial value of the parameter, or where on the curve to start drawing)
+        parameterEnd (the final value of the parameter, or where on the curve to end drawing)
+        parameterStep (the accuracy with which to render the curve)
+    branch:
+        locations (the parameter locations on the curve to branch)
+        delay (the interval to delay at each branch, in milliseconds)
+        angle (the angle, in radians, at which each branch should deflect to the side)
+        shrink (a function taking the size of the vine and returning the size of its branches)
+        maxDepth (the maximum branching depth, zero means don't branch at all - branching may stop earlier if the shrink function returns 0)
+        tint (the amount to tint the branches towards white [0,255])
 
-  // keep track of number of drawing threads, to know when to call back
-  var activeThreads = 1;
+Callback:
+    Called when the tree is fully drawn. Passes no arguments.
 
-  // draw the initial curve of the first branch
-  curve(ctx, modify(parameters.curve, {
-  }), modify(options.curve, {
-    startX: parameters.x,
-    startY: parameters.y,
-    direction: parameters.direction,
-    size: parameters.size,
-    eventHandler: onCurveEvent,
-    fn: function(p){
-      // reverse the x coordinate to implement mirror
-      var res = options.curve.fn(p);
-      if(parameters.mirror) res = [-res[0], res[1]];
-      return res;
+*/
+function vine(canvas, originalParams, callback){
+  // evaluate the parameters
+  var params = evaluateThunks(clone(originalParams));
+
+  // track callbacks
+  var childFinished = waitForChildren(1, callback);
+
+  // function to call when reaching a branching point on the curve
+  function branch(curveParams){
+    // base case
+    if(params.branch.maxDepth > 0){
+      // draw a branch
+      childFinished.add();
+      waitAndCall(params.branch.delay, function(){
+        var branchDirection = curveParams.tangentDirection;
+        if(Math.PI/2 < curveParams.direction < 3*Math.PI/2){   
+          branchDirection -= params.branch.angle;
+        }else{
+          branchDirection += params.branch.angle;
+        }
+        vine(canvas, modify(originalParams, {
+          x: curveParams.x,
+          y: curveParams.y,
+          direction: normalize(branchDirection),
+          size: params.branch.shrink(params.size),
+          color: tintColor(params.color, params.branch.tint),
+          curve: modify(originalParams.curve, {
+            curveFunction: mirrorHorizontal(params.curve.curveFunction),
+          }),
+          branch: modify(originalParams.branch, {
+            maxDepth: params.branch.maxDepth - 1,
+          }),
+        }), childFinished);
+      });
     }
-  }), threadFinished);
-
-  // called when we get to a curve event
-  function onCurveEvent(event, curveParameters, curveOptions){
-    if(event.action == 'branch' && parameters.branches > 0){
-      branch(curveParameters.x, curveParameters.y, curveParameters.direction);
-    }
   }
 
-  function branch(x, y, direction){
-    // record a new active drawing thread
-    activeThreads++;
-    // calculate the new branching direction
-    var branchAngle = options.branchAngle * (parameters.mirror ? -1 : 1);
-    var newDirection = normalize(direction + branchAngle);
-    // recursively draw a new vine
-    vine(ctx, modify(parameters, {
-      x: x,
-      y: y,
-      direction: newDirection,
-      size: options.shrink(parameters.size),
-      mirror: !parameters.mirror,
-      branches: parameters.branches - 1,
-    }), modify(options, {
-      curve: modify(options.curve, {
-        events: randomBranches(), 
-      }),
-    }), threadFinished);
-  }
-  
-  function threadFinished(){
-    activeThreads--;
-    // when all active threads are finished, call back
-    if(activeThreads == 0 && callback) callback();
-  }
-}
-
-// ========== UTILITY OBJECTS AND FUNCTIONS FOR DESCRIBING VINES ==========
-
-// returns an array of a random amount of randomly located branches
-// usually 2, sometimes 1 or 3
-// distributed equally between 0 and PI/2
-// drops branches located within PI/8 of each other
-function randomBranches(){
-  var branchEvents = [];
-  var random = Math.random();
-  randomBranch();
-  if(random > .6) randomBranch();
-  if(random > .8) randomBranch();
-  return branchEvents;
-
-  function randomBranch(){
-    var location = .25*Math.PI + .5*Math.PI*(Math.random()-.5);
-    for(var i=0; i<branchEvents.length; i++){
-      if(Math.abs(branchEvents[i].location - location) < Math.PI/8) return;
-    }
-    branchEvents.push({action: 'branch', location: location});
-  }
+  // draw the first curve
+  var curveParams = modify(params, params.curve);
+  curveParams.events = params.branch.locations.map(function(location){
+    return {parameter: location, handler: branch};
+  });
+  curve(canvas, curveParams, childFinished);
 }

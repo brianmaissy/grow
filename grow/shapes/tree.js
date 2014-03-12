@@ -11,7 +11,7 @@ Params:
     color (the base color of the tree, in hex)
     branch:
         delay (the interval to delay at each branch, in milliseconds)
-        spread (the angle, in radians, at which each branch should deflect to the side)
+        angle (the angle, in radians, at which each branch should deflect to the side)
         shrink (a function taking the size of the tree and returning the size of its branches)
         tint (the amount to tint the tree color towards white each recursion [0,255])
 
@@ -21,35 +21,34 @@ Callback:
 */
 
 function tree(canvas, originalParams, callback){
+  // evaluate the parameters
   var params = evaluateThunks(clone(originalParams));
 
-  // if we are at the end of the iteration, finish
+  // check the base case
   if(params.size == 0){
-    if(callback) callback();
+    finish(callback);
     return;
   }
 
   // draw the trunk line segment
-  segment(canvas, clone(originalParams), function(endingParams){
-    // set the timeout for the next iterations
-    setTimeout(function(){
-      // draw the branches (recurse)
-      tree(canvas, modify(originalParams, {
-        // modifications that need to be made for each recursion of the tree
+  segment(canvas, params, function(endingParams){
+    waitAndCall(params.branch.delay, function(){
+      // recurse to draw the branches
+      var branchParams = modify(originalParams, {
         x: endingParams.x,
         y: endingParams.y,
-        direction: endingParams.direction + params.branch.spread,
         size: params.branch.shrink(params.size),
         color: tintColor(params.color, params.branch.tint),
-      }), callback);
-      // only pass the callback to one child (they finish at the same time)
-      tree(canvas, modify(originalParams, {
-        x: endingParams.x,
-        y: endingParams.y,
-        direction: endingParams.direction - params.branch.spread,
-        size: params.branch.shrink(params.size),
-        color: tintColor(params.color, params.branch.tint),
-      }));
-    }, params.branch.delay);
+      });
+
+      var childFinished = waitForChildren(2, callback);
+
+      tree(canvas, modify(branchParams, {
+        direction: endingParams.direction + params.branch.angle,
+      }), childFinished);
+      tree(canvas, modify(branchParams, {
+        direction: endingParams.direction - params.branch.angle,
+      }), childFinished);
+    });
   });
 }

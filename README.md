@@ -43,6 +43,10 @@ A number of built-in curve functions are included with Grow, located in grow.js.
 
 Sometimes a caller wants to know more information about the progress of a shape functions than its final state when it finishes. To do this a shape function can trigger events at various points in its execution. These shape functions take an event array in their params object, containing objects with a parameter and a handler fields. When the function's parameter reaches one of the specified event values, the corresponding handler function is called, optionally with the shape function's current params object as an argument.
 
+# Notes
+
+* Grow could have been implemented a little more cleanly using the library async.js, but I chose not to in order to eliminate dependencies. The example app included does use async.
+
 # Is the project finished?
 
 Grow is an early-stage work in progress. It's currently versioned at 0.x, which is preliminary, unstable development. The initial stable release will be versioned 1.0. The entry-point code in main.js is only an example of how grow is used, not part of the library.

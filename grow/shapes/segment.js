@@ -16,12 +16,12 @@ Callback:
 */
 
 function segment(canvas, originalParams, callback){
+  // evaluate the parameters
   var params = evaluateThunks(clone(originalParams))
 
-  // if we're already there, finish
+  // check the base case
   if(params.size < 1){
-    // return the final params so we know where we left off
-    if(callback) callback(params);
+    finish(callback, params);
     return;
   }
   
@@ -33,19 +33,15 @@ function segment(canvas, originalParams, callback){
 
   // calculate the position of the next step
   var destination = rotate([1, 0], params.direction)
-  var destinationX = params.x + destination[0];
-  var destinationY = params.y - destination[1];
+  params.x += destination[0];
+  params.y += destination[1];
+  params.size -= 1;
 
   // draw the line segment
-  canvas.lineTo(destinationX, destinationY);
+  canvas.lineTo(params.x, params.y);
   canvas.stroke();
 
-  setTimeout(function(){
-    // draw the remainder of the segment
-    segment(canvas, modify(originalParams, {
-      size: params.size-1,
-      x: destinationX,
-      y: destinationY,
-    }), function(endingParams){ callback(endingParams); }); 
-  }, 1000/params.speed);
+  waitAndCall(1000/params.speed, function(){
+    segment(canvas, params, callback);
+  });
 }
