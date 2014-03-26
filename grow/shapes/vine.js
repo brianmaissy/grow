@@ -21,6 +21,13 @@ Params:
         shrink (a function taking the size of the vine and returning the size of its branches)
         maxDepth (the maximum branching depth, zero means don't branch at all - branching may stop earlier if the shrink function returns 0)
         tint (the amount to tint the branches towards white [0,255])
+    decorations[]:
+        locations (the parameter locations on the curve to draw the decoration)
+        deflect (function taking the curve tangent direction and returning the direction for the decoration - undefined implies the identity function)
+        size (the size of the decoration - multiplied by the vine size)
+        speed (the speed to draw the decoration - multiplied by the vine speed)
+        color (the color of the decoration - will be affected by branch tint)
+        delay (the interval to delay before decorating, in milliseconds)
 
 Callback:
     Called when the tree is fully drawn. Passes no arguments.
@@ -41,10 +48,10 @@ function vine(canvas, originalParams, callback){
       childFinished.add();
       waitAndCall(params.branch.delay, function(){
         var branchDirection = curveParams.tangentDirection;
-        if(Math.PI/2 < curveParams.direction < 3*Math.PI/2){   
-          branchDirection -= params.branch.angle;
-        }else{
+        if(leftwards(branchDirection)){
           branchDirection += params.branch.angle;
+        }else{
+          branchDirection -= params.branch.angle;
         }
         vine(canvas, modify(originalParams, {
           x: curveParams.x,
@@ -53,7 +60,7 @@ function vine(canvas, originalParams, callback){
           size: params.branch.shrink(params.size),
           color: tintColor(params.color, params.branch.tint),
           curve: modify(originalParams.curve, {
-            curveFunction: mirrorHorizontal(params.curve.curveFunction),
+            curveFunction: mirrorVertical(params.curve.curveFunction),
           }),
           branch: modify(originalParams.branch, {
             maxDepth: params.branch.maxDepth - 1,
@@ -63,10 +70,50 @@ function vine(canvas, originalParams, callback){
     }
   }
 
-  // draw the first curve
+  // function to call when reaching a decoration point on the curve
+  function decorate(decoration, curveParams){
+    // set defaults
+    decoration = append(decoration, {
+      deflect: identity,
+    });
+    // draw a decoration
+    childFinished.add();
+    waitAndCall(decoration.delay, function(){
+      curve(canvas, modify(decoration.curve, {     
+        x: curveParams.x,
+        y: curveParams.y,
+        direction: decoration.deflect(curveParams.tangentDirection),
+        size: params.size * decoration.size,
+        speed: params.speed * decoration.speed,
+        color: decoration.color,
+        events: [],
+      }), childFinished);
+    });
+  }
+
+  // prepare the parameters for the first curve
   var curveParams = modify(params, params.curve);
+  // prepare the branch events
   curveParams.events = params.branch.locations.map(function(location){
     return {parameter: location, handler: branch};
   });
-  curve(canvas, curveParams, childFinished);
+  // prepare the decoration events
+  for(var i=0, len=params.decorations.length; i<len; i++){
+    curveParams.events = curveParams.events.concat(params.decorations[i].locations.map(function(location){
+      return {parameter: location, handler: decorate.curry(params.decorations[i])};
+    }));
+  }
+  // draw the first curve
+  curve(canvas, curveParams, function(curveParams){
+    curve(canvas, modify(curveParams, {
+      direction: curveParams.tangentDirection,
+      size: curveParams.size * .01,
+      curveFunction: leftwards(curveParams.tangentDirection) ? mirrorVertical(curves.curl) : curves.curl,
+      parameter: 0,
+      parameterStart: 0,
+      parameterEnd: 4*Math.PI,
+      parameterStep: Math.PI/12,
+      events: [],
+    }), childFinished)
+  });
 }

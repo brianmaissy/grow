@@ -19,8 +19,8 @@ function segment(canvas, originalParams, callback){
   // evaluate the parameters
   var params = evaluateThunks(clone(originalParams))
 
-  // check the base case
-  if(params.size < 1){
+  // base case: stop drawing if the segment is over for practical purposes (less than half a pixel)
+  if(params.size < 0.5){
     finish(callback, params);
     return;
   }

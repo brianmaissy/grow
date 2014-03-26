@@ -31,7 +31,7 @@ function curve(canvas, originalParams, callback){
 
   // check the base case
   if(params.parameter >= params.parameterEnd){
-    finish(callback);
+    finish(callback, clone(params));
     return;
   }
 
@@ -51,9 +51,14 @@ function curve(canvas, originalParams, callback){
   var segmentEndpoint = [params.x + params.size * (nextCurvePoint[0] - currentCurvePoint[0]), 
                          params.y + params.size * (nextCurvePoint[1] - currentCurvePoint[1])];
   var tangentDirection = direction([params.x, params.y], segmentEndpoint);
+  var segmentLength = distance([params.x, params.y], segmentEndpoint);
+  // base case: stop drawing if the curve is over for practical purposes (less than half a pixel)
+  if(segmentLength < 0.5){
+    return finish(callback, clone(params));
+  }
   segment(canvas, modify(params, {
     direction: tangentDirection,
-    size: distance([params.x, params.y], segmentEndpoint),
+    size: segmentLength,
   }), function(endingParams){
     // recurse to draw the rest of the curve
     curve(canvas, modify(params, {

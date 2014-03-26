@@ -28,6 +28,35 @@ function drawVines(canvas){
       maxDepth: 6,
       tint: 48,
     },
+    curl: {
+      
+    },
+    decorations: [{
+      locations: removeCloseNumbers.curry(Math.PI/12).compose(async.apply(randomNumbers, 3, Math.PI/4, Math.PI/2)),
+      size: 0.1,
+      speed: 10,
+      color: '#ff0066',
+      delay: 1000,
+      curve: {
+        curveFunction: curves.flower,
+        parameterStart: 0,
+        parameterEnd: 2*Math.PI,
+        parameterStep: Math.PI/12,
+      },
+    }, {
+      locations: async.apply(randomNumbers, 2, Math.PI/4, Math.PI/2),
+      deflect: function(originalAngle){ return 3*Math.PI/2; },
+      size: 0.075,
+      speed: 0.5,
+      color: '#0066ff',
+      delay: 100,
+      curve: {
+        curveFunction: curves.tassles,
+        parameterStart: 0,
+        parameterEnd: 2*Math.PI,
+        parameterStep: Math.PI/12,
+      },
+    }],
   };
   // continuously run the animation
   async.whilst(always, function(callback){

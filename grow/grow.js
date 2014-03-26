@@ -1,9 +1,21 @@
 // ========== CURVE FUNCTIONS ==========
 
-// curves start at the origin (0, 0), and progress into the first quadrant such that the initial direction is 0 radians (positive first derivative in x and zero first derivative in y at parameter value 0).
+// curves start at the origin (0, 0), and have an initial direction of 0 radians (positive first derivative in x and zero first derivative in y at parameter value 0).
 var curves = {
   vineBranch: function(t){
     return [Math.sin(t), .65-.65*Math.cos(t)];
+  },
+  curl: translate([0, 4*Math.PI], rotate(-Math.PI/2, mirrorHorizontal(polar(function(theta){
+    return 4*Math.PI-theta;
+  })))),
+  circle: function(t){
+    return [.5*Math.cos(t-3*Math.PI/2), .5*Math.sin(t-3*Math.PI/2)+.5];
+  },
+  flower: polar(function(theta){
+    return Math.sin(2*theta);
+  }),
+  tassles: function(t){
+    return [t, 0];
   },
 }
 
@@ -47,13 +59,22 @@ function tintColor(hexColorString, tint){
 
 // ========== MATH HELPER FUNCTIONS ==========
 
-// rotates a vector counterclockwise by an angle in 2D cartesian space
+// rotates a vector or function counterclockwise by an angle in 2D cartesian space
+// call it like rotate([0, 1], Math.PI) or rotate(Math.PI, function)
 function rotate(vector, theta){
-  var x = vector[0], y = vector[1];
-  return [
-    x*Math.cos(theta) - y*Math.sin(theta),
-    x*Math.sin(theta) + y*Math.cos(theta)
-  ];
+  if(typeof theta == 'function'){
+    var originalFunction = theta;
+    theta = vector;
+    return function(parameter){
+      return rotate(originalFunction(parameter), theta);
+    }
+  }else{
+    var x = vector[0], y = vector[1];
+    return [
+      x*Math.cos(theta) - y*Math.sin(theta),
+      x*Math.sin(theta) + y*Math.cos(theta)
+    ];
+  }
 }
 
 // normalizes an angle to between 0 and 2PI
@@ -92,7 +113,7 @@ function polar(rFunctionOfTheta){
 }
 
 // mirrors a parametric function [x,y]=f(p) along the vertical x=0 axis, returning the function [-x,y]=f'(p)
-function mirrorVertical(originalFunction){
+function mirrorHorizontal(originalFunction){
   return function(parameter){
     var point = originalFunction(parameter);
     point[0] = -point[0];
@@ -101,12 +122,27 @@ function mirrorVertical(originalFunction){
 }
 
 // mirrors a parametric function [x,y]=f(p) along the horizontal y=0 axis, returning the function [x,-y]=f'(p)
-function mirrorHorizontal(originalFunction){
+function mirrorVertical(originalFunction){
   return function(parameter){
     var point = originalFunction(parameter);
     point[1] = -point[1];
     return point;
   }
+}
+
+// translates a parametric function in cartesian space
+function translate(vector, originalFunction){
+  return function(parameter){
+    var point = originalFunction(parameter);
+    point[0] += vector[0];
+    point[1] += vector[1];
+    return point;
+  }
+}
+
+// tests whether or not a curve with the given tangent angle is moving leftwards
+function leftwards(angle){
+  return Math.PI/2 < angle && angle < 3*Math.PI/2;
 }
 
 // ========== RANDOM HELPER FUNCTIONS ==========
@@ -239,6 +275,11 @@ function delay(timeout){
   return waitAndCall.bind(null, timeout);  
 }
 
+// identity function
+function identity(argument){
+  return argument;
+}
+
 // always-true predicate
 function always() {
   return true;
@@ -255,7 +296,8 @@ function finish(callback, argument){
 Function.prototype.curry = function(arg1, arg2, etc){
   var originalFunction = this;
   var originalArguments = Array.prototype.slice.call(arguments);
-  return function(){
+  // don't remove the arg1, arg2, etc, otherwise evaluateThunks will think this is a thunk
+  return function(arg1, arg2, etc){
     return originalFunction.apply(undefined, originalArguments.concat(Array.prototype.slice.call(arguments)));
   }
 }
