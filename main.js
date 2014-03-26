@@ -29,7 +29,7 @@ function drawVines(canvas){
       tint: 48,
     },
     curl: {
-      
+      size: async.apply(randomize, 0.01, 0.005),
     },
     decorations: [{
       locations: removeCloseNumbers.curry(Math.PI/12).compose(async.apply(randomNumbers, 3, Math.PI/4, Math.PI/2)),

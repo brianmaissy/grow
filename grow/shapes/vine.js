@@ -14,6 +14,8 @@ Params:
         parameterStart (the initial value of the parameter, or where on the curve to start drawing)
         parameterEnd (the final value of the parameter, or where on the curve to end drawing)
         parameterStep (the accuracy with which to render the curve)
+    curl:
+        size (the size of the curl on the end of each branch - multiplied by the vine size)
     branch:
         locations (the parameter locations on the curve to branch)
         delay (the interval to delay at each branch, in milliseconds)
@@ -107,7 +109,7 @@ function vine(canvas, originalParams, callback){
   curve(canvas, curveParams, function(curveParams){
     curve(canvas, modify(curveParams, {
       direction: curveParams.tangentDirection,
-      size: curveParams.size * .01,
+      size: curveParams.size * params.curl.size,
       curveFunction: leftwards(curveParams.tangentDirection) ? mirrorVertical(curves.curl) : curves.curl,
       parameter: 0,
       parameterStart: 0,
