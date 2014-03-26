@@ -53,10 +53,8 @@ Grow is an early-stage work in progress. It's currently versioned at 0.x, which 
 
 ## TODO
 
-* Implement new events system
-* Implement new control flow management tool
 * Set defaults for options objects
-* Randomize should return a function
 * Write core abstraction functions (shape generator function)
 * Put shape functions in an object, and put everything in a module
 * Random color generator
+* Make a tweaking interface that allows for modifying the code, or the objects, or at least the parameters
